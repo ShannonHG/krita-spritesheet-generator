@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<!--BBD's Krita Script Starter, Feb 2018 -->
+<head><title>Spritesheet Generator Manual</title>
+</head>
+<body>
+<h1 id="spritesheet-generator">Spritesheet Generator</h1>
+<p>The <b>Spritesheet Generator</b> exports the frames in the animation timeline as a spritesheet.</p>
+<h2 id="usage">Usage</h2>
+<p>The <b>Spritesheet Generator</b> can be opened by navigating to <b>Tools -> Scripts -> Spritesheet Generator</b>. See below for details on the various options that can be configured.</p>
+<h2 id="options">Options</h2>
+<p><b>File path:</b> The file path that the spritesheet will be exported to. The <b>Browse</b> button can be used to open the computer's native file manager.</p>
+<p><b>Spritesheet layout:</b> Determines how the sprites will be organized in the spritesheet.</p>
+<ul>
+    <li><b>Rows:</b> Consecutive sprites will be placed in the same row. Once the row is full, the process will be repeated for the following row.</li>
+    <li><b>Columns</b> Consecutive sprites will be placed in the same column. Once the column is full, the process will be repeated for the following column.</li>
+    <li><b>Horizontal Strip</b> Sprites will be organized into a single horizontal line.</li>
+    <li><b>Vertical Strip</b> Sprites will be organized into a single vertical line.</li>
+</ul>
+<p><b>Sprite dimensions:</b> Options related to the individual size of each sprite in the spritesheet.</p>
+<ul>
+    <li><b>Width:</b> The desired width of each individual sprite. If this is different than the width of the current document, then the sprites will be resized before being placed in the spritesheet.</li>
+    <li><b>Height:</b> The desired height of each individual sprite. If this is different than the height of the current document, then the sprites will be resized before being placed in the spritesheet.</li>
+    <li><b>Filter</b> The algorithm that will be used to resize the sprites (if needed).</li>
+</ul>
+<p><b>Ignore empty frames:</b> If enabled (default), empty frames in the animation timeline will not be included in the spritesheet.</p>
+</body>
+</html>
