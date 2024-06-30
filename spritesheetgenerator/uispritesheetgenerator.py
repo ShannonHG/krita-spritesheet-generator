@@ -26,7 +26,9 @@ class UISpritesheetGenerator(object):
         self.filePathLayout = QHBoxLayout()
         self.filePathLabel = QLabel("File path:")
         self.filePathField = QLineEdit()
+        self.filePathField.setToolTip("The file path that the spritesheet will be exported to.")
         self.filePathBrowseButton = QPushButton("Browse")
+        self.filePathBrowseButton.setToolTip("Opens this computer's native file browser to select the spritesheet's file path.")
         self.filePathBrowseButton.clicked.connect(self._onBrowseButtonPressed)
 
         # Constant values for sprite sizing fields
@@ -35,6 +37,10 @@ class UISpritesheetGenerator(object):
 
         # UI for selecting the spritesheet type
         self.spritesheetLayoutComboBox = QComboBox()
+        self.spritesheetLayoutComboBox.setToolTip("<b>Rows:</b> Consecutive sprites will be placed in the same row. Once the row is full, the process will be repeated for the following rows.<br><br>" + 
+                                                  "<b>Columns:</b> Consecutive sprites will be placed in the same column. Once the column is full, the process will be repeated for the following columns.<br><br>" +
+                                                  "<b>Horizontal Strip:</b> Sprites will be organized into a single horizontal line.<br><br>"+
+                                                  "<b>Vertical Strip:</b> Sprites will be organized into a single vertical line.")
         self.spritesheetLayoutComboBox.setMaximumWidth(spriteDimensionsFieldWidth)
         self.spritesheetLayoutComboBox.addItem("Rows")
         self.spritesheetLayoutComboBox.addItem("Columns")
@@ -48,12 +54,14 @@ class UISpritesheetGenerator(object):
 
         # Widget for controlling the width of sprites
         self.spriteWidthField = QSpinBox()
+        self.spriteWidthField.setToolTip("The desired width of each individual sprite in the spritesheet.")
         self.spriteWidthField.setMaximum(spriteDimensionsMaxValue)
         self.spriteWidthField.setMaximumWidth(spriteDimensionsFieldWidth)
         self.spriteWidthField.setAlignment(Qt.AlignRight)
 
         # Widget for controlling the height of sprites
         self.spriteHeightField = QSpinBox()
+        self.spriteHeightField.setToolTip("The desired height of each individual sprite in the spritesheet.")
         self.spriteHeightField.setMaximum(spriteDimensionsMaxValue)
         self.spriteHeightField.setMaximumWidth(spriteDimensionsFieldWidth)
         self.spriteHeightField.setAlignment(Qt.AlignRight)
@@ -64,12 +72,14 @@ class UISpritesheetGenerator(object):
         
         # Widget for controlling the filter method used to resize sprites
         self.filterStrategyComboBox = QComboBox()
+        self.filterStrategyComboBox.setToolTip("The algorithm that will be used to resize the sprites (if needed).")
         self.filterStrategyComboBox.setMaximumWidth(spriteDimensionsFieldWidth)
         self.filterStrategyComboBox.addItem("Auto")
         self.filterStrategyComboBox.addItems(self.krita.filterStrategies())
         
         # Toggle to include/exclude empty frames
         self.ignoreEmptyFramesCheckBox = QCheckBox("Ignore empty frames")
+        self.ignoreEmptyFramesCheckBox.setToolTip("If enabled, empty frames in the animation timeline will not be included in the spritesheet.")
         self.ignoreEmptyFramesCheckBox.setChecked(True)
 
         # "OK" and "Cancel" buttons

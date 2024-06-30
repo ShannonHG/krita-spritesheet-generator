@@ -22,8 +22,8 @@ After installation, the **Spritesheet Generator** can be opened by navigating to
 * **File path:** The file path that the spritesheet will be exported to. The **Browse** button can be used to open the computer's native file manager.
 
 * **Spritesheet layout:** Determines how the sprites will be organized in the spritesheet.
-    * **Rows:** Consecutive sprites will be placed in the same row. Once the row is full, the process will be repeated for the following row.
-    * **Columns:** Consecutive sprites will be placed in the same column. Once the column is full, the process will be repeated for the following column.
+    * **Rows:** Consecutive sprites will be placed in the same row. Once the row is full, the process will be repeated for the following rows.
+    * **Columns:** Consecutive sprites will be placed in the same column. Once the column is full, the process will be repeated for the following columns.
     * **Horizontal Strip:** Sprites will be organized into a single horizontal line.
     * **Vertical Strip:** Sprites will be organized into a single vertical line.
 
