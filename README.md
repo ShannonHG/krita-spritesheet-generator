@@ -1,5 +1,5 @@
 # Krita Spritesheet Generator
-A Krita plugin capable of exporting the frames in the animation timeline as a spritesheet.
+A Krita plugin capable of exporting animations as spritesheets.
 
 <img src="./Screenshots/spritesheetgenerator-window.png">
 
