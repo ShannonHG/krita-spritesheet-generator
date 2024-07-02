@@ -155,7 +155,7 @@ class UISpritesheetGenerator(object):
     def _onBrowseButtonPressed(self):
         fileDialog = QFileDialog()
         fileDialog.setWindowTitle("Exporting Spritesheet")
-        fileDialog.setNameFilter("Images (*.png)")
+        fileDialog.setNameFilter("PNG image (*.png)")
         
         if fileDialog.exec():
             fileNames = fileDialog.selectedFiles()
