@@ -75,12 +75,12 @@ class SpritesheetGenerator():
                 self._convertCurrentFrameToSpritesheetLayer()
         else:
             # Grab all of the keyframes
-            keyframeTimes = []
+            keyframeTimes = set()
             topLevelLayers = self.temporaryDocument.topLevelNodes()
             for layer in topLevelLayers:
                 for time in range(self.animationStartTime, self.animationEndTime + 1, 1):
                     if self._hasKeyframeAtTime(layer, time):
-                        keyframeTimes.append(time)
+                        keyframeTimes.add(time)
                         print(f"Found keyframe at index: {time}")
             
             frameCount = len(keyframeTimes)
@@ -88,6 +88,7 @@ class SpritesheetGenerator():
 
             size = self._getSpritesheetSize(frameCount)
             self._createSpritesheetDocument(size.columns, size.rows)
+            keyframeTimes = sorted(keyframeTimes)
 
             # Convert keyframes to spritesheet layers
             for time in keyframeTimes:
