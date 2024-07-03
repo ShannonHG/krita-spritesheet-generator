@@ -157,7 +157,10 @@ class SpritesheetGenerator():
         self.spritesheetDocument.refreshProjection()
 
     def _hasKeyframeAtTime(self, layer, time):
-        if layer.visible() and layer.hasKeyframeAtTime(time):
+        if not layer.visible():
+            return False
+
+        if layer.hasKeyframeAtTime(time):
             return True
             
         if len(layer.childNodes()) != 0:
