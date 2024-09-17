@@ -32,8 +32,8 @@ class UISpritesheetGenerator(object):
         self.filePathBrowseButton.clicked.connect(self._onBrowseButtonPressed)
 
         # Constant values for sprite sizing fields
-        spriteDimensionsFieldWidth = 170
-        spriteDimensionsMaxValue = 9999
+        spritePropertiesFieldWidth = 170
+        spritePropertiesMaxValue = 9999
 
         # UI for selecting the spritesheet type
         self.spritesheetLayoutComboBox = QComboBox()
@@ -41,29 +41,36 @@ class UISpritesheetGenerator(object):
                                                   "<b>Columns:</b> Consecutive sprites will be placed in the same column. Once the column is full, the process will be repeated for the following columns.<br><br>" +
                                                   "<b>Horizontal Strip:</b> Sprites will be organized into a single horizontal line.<br><br>"+
                                                   "<b>Vertical Strip:</b> Sprites will be organized into a single vertical line.")
-        self.spritesheetLayoutComboBox.setMaximumWidth(spriteDimensionsFieldWidth)
+        self.spritesheetLayoutComboBox.setMaximumWidth(spritePropertiesFieldWidth)
         self.spritesheetLayoutComboBox.addItem("Rows")
         self.spritesheetLayoutComboBox.addItem("Columns")
         self.spritesheetLayoutComboBox.addItem("Horizontal Strip")
         self.spritesheetLayoutComboBox.addItem("Vertical Strip")
         self.spritesheetLayoutFormLayout = QFormLayout()
 
-        # Containers for the sprite dimensions UI
-        self.spriteDimensionsContainer = QGroupBox("Sprite dimensions")
-        self.spriteDimensionsLayout = QFormLayout(self.spriteDimensionsContainer)
+        # Containers for the sprite properties UI
+        self.spritePropertiesContainer = QGroupBox("Sprite properties")
+        self.spritePropertiesLayout = QFormLayout(self.spritePropertiesContainer)
+
+        # Widget for controlling the padding around sprites
+        self.spritePaddingField = QSpinBox()
+        self.spritePaddingField.setToolTip("The size of the transparent border added to sprites in the spritesheet. Useful to avoid sprites bleeding into each other.")
+        self.spritePaddingField.setMaximum(spritePropertiesMaxValue)
+        self.spritePaddingField.setMaximumWidth(spritePropertiesFieldWidth)
+        self.spritePaddingField.setAlignment(Qt.AlignRight)
 
         # Widget for controlling the width of sprites
         self.spriteWidthField = QSpinBox()
         self.spriteWidthField.setToolTip("The desired width of each individual sprite in the spritesheet.")
-        self.spriteWidthField.setMaximum(spriteDimensionsMaxValue)
-        self.spriteWidthField.setMaximumWidth(spriteDimensionsFieldWidth)
+        self.spriteWidthField.setMaximum(spritePropertiesMaxValue)
+        self.spriteWidthField.setMaximumWidth(spritePropertiesFieldWidth)
         self.spriteWidthField.setAlignment(Qt.AlignRight)
 
         # Widget for controlling the height of sprites
         self.spriteHeightField = QSpinBox()
         self.spriteHeightField.setToolTip("The desired height of each individual sprite in the spritesheet.")
-        self.spriteHeightField.setMaximum(spriteDimensionsMaxValue)
-        self.spriteHeightField.setMaximumWidth(spriteDimensionsFieldWidth)
+        self.spriteHeightField.setMaximum(spritePropertiesMaxValue)
+        self.spriteHeightField.setMaximumWidth(spritePropertiesFieldWidth)
         self.spriteHeightField.setAlignment(Qt.AlignRight)
 
         if self.activeDocument != None:
@@ -73,7 +80,7 @@ class UISpritesheetGenerator(object):
         # Widget for controlling the filter method used to resize sprites
         self.filterStrategyComboBox = QComboBox()
         self.filterStrategyComboBox.setToolTip("The algorithm that will be used to resize the sprites (if needed).")
-        self.filterStrategyComboBox.setMaximumWidth(spriteDimensionsFieldWidth)
+        self.filterStrategyComboBox.setMaximumWidth(spritePropertiesFieldWidth)
         self.filterStrategyComboBox.addItem("Auto")
         self.filterStrategyComboBox.addItems(self.krita.filterStrategies())
         
@@ -117,11 +124,12 @@ class UISpritesheetGenerator(object):
         divider.setLineWidth(1)
         self.mainLayout.addWidget(divider)
 
-        # Add sprite dimensions widgets
-        self.spriteDimensionsLayout.addRow("Width (px):", self.spriteWidthField)
-        self.spriteDimensionsLayout.addRow("Height (px):", self.spriteHeightField)
-        self.spriteDimensionsLayout.addRow("Filter:", self.filterStrategyComboBox)
-        self.mainLayout.addWidget(self.spriteDimensionsContainer)
+        # Add sprite properties widgets
+        self.spritePropertiesLayout.addRow("Width (px):", self.spriteWidthField)
+        self.spritePropertiesLayout.addRow("Height (px):", self.spriteHeightField)
+        self.spritePropertiesLayout.addRow("Filter:", self.filterStrategyComboBox)
+        self.spritePropertiesLayout.addRow("Padding (px):", self.spritePaddingField)
+        self.mainLayout.addWidget(self.spritePropertiesContainer)
 
         # Add the toggle for including/excluding empty frames
         self.mainLayout.addWidget(self.ignoreEmptyFramesCheckBox)
@@ -144,6 +152,7 @@ class UISpritesheetGenerator(object):
             self.ignoreEmptyFramesCheckBox.isChecked(),
             self.spriteWidthField.value(),
             self.spriteHeightField.value(),
+            self.spritePaddingField.value(),
             self.filterStrategyComboBox.currentText())
         
         self.spritesheetGenerator.export()

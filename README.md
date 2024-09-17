@@ -31,5 +31,6 @@ After installation, the **Spritesheet Generator** can be opened by navigating to
     * **Width:** The desired width of each individual sprite. If this is different than the width of the current document, then the sprites will be resized before being placed in the spritesheet.
     * **Height:** The desired height of each individual sprite. If this is different than the height of the current document, then the sprites will be resized before being placed in the spritesheet.
     * **Filter:** The algorithm that will be used to resize the sprites (if needed).
+    * **Padding:** The size of the transparent border added to sprites in the spritesheet. Useful to avoid sprites bleeding into each other.
 
 * **Ignore empty frames:** If enabled (default), empty frames in the animation timeline will not be included in the spritesheet.

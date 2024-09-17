@@ -8,12 +8,15 @@ class SpritesheetGenerator():
     def __init__(self):
         pass
 
-    def configure(self, exportFilePath, spritesheetType, ignoreEmptyFrames, targetSpriteWidth, targetSpriteHeight, filterStrategy):
+    def configure(self, exportFilePath, spritesheetType, ignoreEmptyFrames, targetSpriteWidth, targetSpriteHeight, spritePadding, filterStrategy):
         self.exportFilePath = exportFilePath
         self.spritesheetType = spritesheetType
         self.ignoreEmptyFrames = ignoreEmptyFrames
         self.targetSpriteWidth = targetSpriteWidth
         self.targetSpriteHeight = targetSpriteHeight
+        self.spritePadding = spritePadding
+        self.finalSpriteWidth = self.targetSpriteWidth + (self.spritePadding * 2)
+        self.finalSpriteHeight = self.targetSpriteHeight + (self.spritePadding * 2)
         self.filterStrategy = filterStrategy
         self.krita = krita.Krita.instance()
         self.activeDocument = self.krita.activeDocument()
@@ -35,9 +38,13 @@ class SpritesheetGenerator():
         # All transformations (such as resizing) will be done on this temporary document.
         self._createTemporaryDocument()
 
-        if self._isResizeRequired():
+        if self._isSpriteResizeRequired():
             print("Sprites will be resized...")
-            self._resizeDocument()
+            self._resizeSprites()
+
+        if self.spritePadding > 0:
+            print("Adding padding to spritesheet frames...")
+            self._applyPaddingToSprites()
         
         self._createSpritesheetDocumentFromFrames()
         self._positionFramesInSpritesheetDocument()
@@ -51,14 +58,23 @@ class SpritesheetGenerator():
         
         print("Temporary document created")
 
-    def _isResizeRequired(self):
+    def _isSpriteResizeRequired(self):
         return self.temporaryDocument.width() != self.targetSpriteWidth or self.temporaryDocument.height() != self.targetSpriteHeight
     
-    def _resizeDocument(self):
+    def _resizeSprites(self):
         self.temporaryDocument.scaleImage(self.targetSpriteWidth, self.targetSpriteHeight, self.targetSpriteWidth, self.targetSpriteHeight, self.filterStrategy)
         self.temporaryDocument.refreshProjection()
 
         print(f"Sprites resized to {self.temporaryDocument.width()} x {self.temporaryDocument.height()}")
+
+    def _applyPaddingToSprites(self):
+        self.temporaryDocument.setXOffset(-self.spritePadding)
+        self.temporaryDocument.setYOffset(-self.spritePadding)
+        self.temporaryDocument.setWidth(self.temporaryDocument.width() + (self.spritePadding * 2))
+        self.temporaryDocument.setHeight(self.temporaryDocument.height() + (self.spritePadding * 2))
+        self.temporaryDocument.refreshProjection()
+
+        print(f"Padding applied. New document size is {self.temporaryDocument.width()} x {self.temporaryDocument.height()}")
 
     def _createSpritesheetDocumentFromFrames(self):
         if not self.ignoreEmptyFrames:
@@ -195,27 +211,27 @@ class SpritesheetGenerator():
          # Place sprites by filling up each row before moving to the next row.
          layers = self.spritesheetDocument.topLevelNodes()
          for index in range(len(layers)):
-             layers[index].move(int(index % self.spritesheetColumns) * self.targetSpriteWidth, 
-                                int(index / self.spritesheetColumns) * self.targetSpriteHeight)
+             layers[index].move(int(index % self.spritesheetColumns) * self.finalSpriteWidth, 
+                                int(index / self.spritesheetColumns) * self.finalSpriteHeight)
 
     def _positionSpritesheetFramesByColumns(self):
          # Place sprites by filling up each column before moving to the next column.
          layers = self.spritesheetDocument.topLevelNodes()
          for index in range(len(layers)):
-             layers[index].move(int(index / self.spritesheetRows) * self.targetSpriteWidth, 
-                                int(index % self.spritesheetRows) * self.targetSpriteHeight)
+             layers[index].move(int(index / self.spritesheetRows) * self.finalSpriteWidth, 
+                                int(index % self.spritesheetRows) * self.finalSpriteHeight)
 
     def _positionSpritesheetFramesAsHorizontalStrip(self):
         # Place sprites in a single horizontal line.
         layers = self.spritesheetDocument.topLevelNodes()
         for index in range(len(layers)):
-            layers[index].move(index * self.targetSpriteWidth, 0)
+            layers[index].move(index * self.finalSpriteWidth, 0)
 
     def _positionSpritesheetFramesAsVerticalStrip(self):
         # Place sprites in a single vertical line.
         layers = self.spritesheetDocument.topLevelNodes()
         for index in range(len(layers)):
-            layers[index].move(0, index * self.targetSpriteHeight)
+            layers[index].move(0, index * self.finalSpriteHeight)
 
     def _forceCloseDocument(self, document):
         # Set "modified" to false to prevent a popup from showing when closing the document
