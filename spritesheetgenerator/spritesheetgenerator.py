@@ -68,6 +68,10 @@ class SpritesheetGenerator():
         print(f"Sprites resized to {self.temporaryDocument.width()} x {self.temporaryDocument.height()}")
 
     def _applyPaddingToSprites(self):
+        # Remove excess pixels that are beyond the bounds of the visible portion of the document.
+        self.temporaryDocument.crop(0, 0, self.temporaryDocument.width(), self.temporaryDocument.height())
+
+        # Adjust document offset and size to apply padding.
         self.temporaryDocument.setXOffset(-self.spritePadding)
         self.temporaryDocument.setYOffset(-self.spritePadding)
         self.temporaryDocument.setWidth(self.temporaryDocument.width() + (self.spritePadding * 2))
