@@ -8,13 +8,14 @@ class SpritesheetGenerator():
     def __init__(self):
         pass
 
-    def configure(self, exportFilePath, spritesheetType, autoCalculateSize, customRowCount, customColumnCount, ignoreEmptyFrames, targetSpriteWidth, targetSpriteHeight, spritePadding, filterStrategy):
+    def configure(self, exportFilePath, spritesheetType, autoCalculateSize, customRowCount, customColumnCount, ignoreEmptyFrames, breakOnEmptyFrames, targetSpriteWidth, targetSpriteHeight, spritePadding, filterStrategy):
         self.exportFilePath = exportFilePath
         self.spritesheetType = spritesheetType
         self.autoCalculateSize = autoCalculateSize
         self.customRowCount = max(customRowCount, 1)
         self.customColumnCount = max(customColumnCount, 1)
         self.ignoreEmptyFrames = ignoreEmptyFrames
+        self.breakOnEmptyFrames = breakOnEmptyFrames
         self.targetSpriteWidth = targetSpriteWidth
         self.targetSpriteHeight = targetSpriteHeight
         self.spritePadding = spritePadding
@@ -30,6 +31,7 @@ class SpritesheetGenerator():
         print(f"Export file path: {self.exportFilePath}")
         print(f"Spritesheet type: {self.spritesheetType}")
         print(f"Ignore empty frames: {self.ignoreEmptyFrames}")
+        print(f"Break row on empty frames: {self.breakOnEmptyFrames}")
         print(f"Target width: {self.targetSpriteWidth}")
         print(f"Target height: {self.targetSpriteHeight}")
         print(f"Filter type: {self.filterStrategy}")
@@ -84,6 +86,53 @@ class SpritesheetGenerator():
         print(f"Padding applied. New document size is {self.temporaryDocument.width()} x {self.temporaryDocument.height()}")
 
     def _createSpritesheetDocumentFromFrames(self):
+        if self.breakOnEmptyFrames:
+            print("Grouping frames into rows based on empty frames")
+            
+            rows_data = []
+            current_row = []
+            topLevelLayers = self.temporaryDocument.topLevelNodes()
+            
+            for time in range(self.animationStartTime, self.animationEndTime + 1, 1):
+                has_keyframe = False
+                for currentLayer in topLevelLayers:
+                    if self._hasKeyframeAtTime(currentLayer, time):
+                        has_keyframe = True
+                        break
+                
+                if has_keyframe:
+                    current_row.append(time)
+                else:
+                    if current_row:
+                        rows_data.append(current_row)
+                        current_row = []
+            
+            if current_row:
+                rows_data.append(current_row)
+                
+            frameCount = sum(len(row) for row in rows_data)
+            print(f"Adding {frameCount} frames to the spritesheet document in {len(rows_data)} rows")
+            
+            max_cols = max((len(row) for row in rows_data), default=1)
+            num_rows = max(len(rows_data), 1)
+            
+            if frameCount > 0:
+                self._createSpritesheetDocument(max_cols, num_rows)
+                
+                self.layeredFramePositions = {}
+                layer_index = 0
+                for row_idx, row in enumerate(rows_data):
+                    for col_idx, time in enumerate(row):
+                        self.temporaryDocument.setCurrentTime(time)
+                        self.temporaryDocument.refreshProjection()
+                        self._convertCurrentFrameToSpritesheetLayer()
+                        self.layeredFramePositions[layer_index] = (col_idx, row_idx)
+                        layer_index += 1
+            else:
+                self._createSpritesheetDocument(1, 1)
+
+            return
+
         # If "Auto calculate size" is enabled then the max number of frames is the same as
         # the total number of frames in the document. Otherwise, the max number of frames
         # is determine by the manually defined number of rows and columns.
@@ -218,6 +267,15 @@ class SpritesheetGenerator():
         return False
     
     def _positionFramesInSpritesheetDocument(self):
+        if self.breakOnEmptyFrames and hasattr(self, 'layeredFramePositions'):
+            layers = self.spritesheetDocument.topLevelNodes()
+            for index in range(len(layers)):
+                if index in self.layeredFramePositions:
+                    col, row = self.layeredFramePositions[index]
+                    layers[index].move(int(col * self.finalSpriteWidth), int(row * self.finalSpriteHeight))
+            self.spritesheetDocument.refreshProjection()
+            return
+
         # Based on the selected spritesheet type, move all of the layers into their respective
         # positions in the spritesheet document.
         if self.spritesheetType == "Rows":

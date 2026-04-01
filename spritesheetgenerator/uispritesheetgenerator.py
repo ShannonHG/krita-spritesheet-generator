@@ -121,6 +121,11 @@ class UISpritesheetGenerator(object):
         self.ignoreEmptyFramesCheckBox.setToolTip("If enabled, empty frames in the animation timeline will not be included in the spritesheet.")
         self.ignoreEmptyFramesCheckBox.setChecked(True)
 
+        # Toggle to break into new rows when encountering empty frames
+        self.breakOnEmptyFramesCheckBox = QCheckBox("Break row on empty frames")
+        self.breakOnEmptyFramesCheckBox.setToolTip("If enabled, any 'empty' frames (without keyframes) between animations will trigger a line break, starting a new row for subsequent frames.")
+        self.breakOnEmptyFramesCheckBox.setChecked(False)
+
         # "OK" and "Cancel" buttons
         self.dialogButtonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         self.dialogButtonBox.accepted.connect(self._onConfirmButtonPressed)
@@ -174,6 +179,7 @@ class UISpritesheetGenerator(object):
 
         # Add the toggle for including/excluding empty frames
         self.mainLayout.addWidget(self.ignoreEmptyFramesCheckBox)
+        self.mainLayout.addWidget(self.breakOnEmptyFramesCheckBox)
 
         # Add the "OK" and "Cancel" buttons
         self.mainLayout.addWidget(self.dialogButtonBox)
@@ -194,6 +200,7 @@ class UISpritesheetGenerator(object):
             self.spritesheetRowCountField.value(),
             self.spritesheetColumnCountField.value(),
             self.ignoreEmptyFramesCheckBox.isChecked(),
+            self.breakOnEmptyFramesCheckBox.isChecked(),
             self.spriteWidthField.value(),
             self.spriteHeightField.value(),
             self.spritePaddingField.value(),
