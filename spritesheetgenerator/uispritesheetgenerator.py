@@ -228,7 +228,7 @@ class UISpritesheetGenerator(object):
 
         if outputPath.is_dir():
             # Save the directory so it can be auto-filled the next time the UI is opened.
-            self.settingsStorage.setValue(UISpritesheetGenerator.SETTINGS_PREV_OUTPUT_PATH_KEY, str(outputPath))
+            self.settingsStorage.setValue(UISpritesheetGenerator.SETTINGS_PREV_OUTPUT_PATH_KEY, os.path.normpath(str(outputPath)))
 
             # If the path is a directory, then append a very specific file name to avoid
             # accidentally overwriting any of the user's existing files.
@@ -239,7 +239,7 @@ class UISpritesheetGenerator(object):
                 outputPath = outputPath.with_suffix(".png")
 
             # Save the file path so it can be auto-filled the next time the UI is opened.
-            self.settingsStorage.setValue(UISpritesheetGenerator.SETTINGS_PREV_OUTPUT_PATH_KEY, str(outputPath))
+            self.settingsStorage.setValue(UISpritesheetGenerator.SETTINGS_PREV_OUTPUT_PATH_KEY, os.path.normpath(str(outputPath)))
 
         self.settingsStorage.sync()
 
