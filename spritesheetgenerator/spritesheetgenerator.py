@@ -2,7 +2,7 @@ import krita
 import math
 from pathlib import Path
 from collections import namedtuple
-from PyQt5.QtCore import QUuid
+from PyQt6.QtCore import QUuid
 
 class SpritesheetGenerator():
 
@@ -89,7 +89,7 @@ class SpritesheetGenerator():
         print(f"Applying layer exclusions: {str(self.layerExclusions)}")
 
         for layer in layers:
-            id = layer.uniqueId().toString(QUuid.WithoutBraces)
+            id = layer.uniqueId().toString(QUuid.StringFormat.WithoutBraces)
             if id in self.layerExclusions:
                 print(f"Layer [{layer.name()} | {id}] will be excluded from the spritesheet")
                 layer.setVisible(False)

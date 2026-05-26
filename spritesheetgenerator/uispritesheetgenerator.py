@@ -2,9 +2,9 @@ import krita
 import os
 from pathlib import Path
 from .spritesheetgenerator import SpritesheetGenerator
-from PyQt5.QtCore import Qt, QSettings, QUuid
-from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtWidgets import (QDialog, QLineEdit, QCheckBox,
+from PyQt6.QtCore import Qt, QSettings, QUuid
+from PyQt6.QtGui import QPixmap, QIcon
+from PyQt6.QtWidgets import (QDialog, QLineEdit, QCheckBox,
                              QPushButton, QVBoxLayout, QHBoxLayout,
                              QLabel, QDialogButtonBox, QFormLayout,
                              QSpinBox, QComboBox, QGroupBox,
@@ -72,7 +72,7 @@ class UISpritesheetGenerator(object):
         self.spritesheetRowCountField.setMinimum(1)
         self.spritesheetRowCountField.setMaximum(spriteCustomLayoutFieldMaxValue)
         self.spritesheetRowCountField.setMaximumWidth(spriteCustomLayoutFieldWidth)
-        self.spritesheetRowCountField.setAlignment(Qt.AlignRight)
+        self.spritesheetRowCountField.setAlignment(Qt.AlignmentFlag.AlignRight)
 
         # Widget for controlling the number of columns when in Custom layout mode
         self.spritesheetColumnCountField = QSpinBox()
@@ -80,7 +80,7 @@ class UISpritesheetGenerator(object):
         self.spritesheetColumnCountField.setMinimum(1)
         self.spritesheetColumnCountField.setMaximum(spriteCustomLayoutFieldMaxValue)
         self.spritesheetColumnCountField.setMaximumWidth(spriteCustomLayoutFieldWidth)
-        self.spritesheetColumnCountField.setAlignment(Qt.AlignRight)
+        self.spritesheetColumnCountField.setAlignment(Qt.AlignmentFlag.AlignRight)
 
         self._onAutoCalculateSizeChanged()
 
@@ -93,21 +93,21 @@ class UISpritesheetGenerator(object):
         self.spritePaddingField.setToolTip("The size of the transparent border added to sprites in the spritesheet. Useful to avoid sprites bleeding into each other.")
         self.spritePaddingField.setMaximum(spritePropertiesMaxValue)
         self.spritePaddingField.setMaximumWidth(spritePropertiesFieldWidth)
-        self.spritePaddingField.setAlignment(Qt.AlignRight)
+        self.spritePaddingField.setAlignment(Qt.AlignmentFlag.AlignRight)
 
         # Widget for controlling the width of sprites
         self.spriteWidthField = QSpinBox()
         self.spriteWidthField.setToolTip("The desired width of each individual sprite in the spritesheet.")
         self.spriteWidthField.setMaximum(spritePropertiesMaxValue)
         self.spriteWidthField.setMaximumWidth(spritePropertiesFieldWidth)
-        self.spriteWidthField.setAlignment(Qt.AlignRight)
+        self.spriteWidthField.setAlignment(Qt.AlignmentFlag.AlignRight)
 
         # Widget for controlling the height of sprites
         self.spriteHeightField = QSpinBox()
         self.spriteHeightField.setToolTip("The desired height of each individual sprite in the spritesheet.")
         self.spriteHeightField.setMaximum(spritePropertiesMaxValue)
         self.spriteHeightField.setMaximumWidth(spritePropertiesFieldWidth)
-        self.spriteHeightField.setAlignment(Qt.AlignRight)
+        self.spriteHeightField.setAlignment(Qt.AlignmentFlag.AlignRight)
 
         if self.activeDocument != None:
             self.spriteWidthField.setValue(self.activeDocument.width())
@@ -134,9 +134,9 @@ class UISpritesheetGenerator(object):
 
                 # Store the ID of the layer as metadata in the item
                 # so that it can be used later when applying layer exclusions.
-                item.setData(Qt.UserRole, layer.uniqueId().toString(QUuid.WithoutBraces))
+                item.setData(Qt.ItemDataRole.UserRole, layer.uniqueId().toString(QUuid.StringFormat.WithoutBraces))
 
-                item.setCheckState(Qt.Checked)
+                item.setCheckState(Qt.CheckState.Checked)
                 self.layersToExportListWidget.insertItem(0, item)
         
         # Toggle to include/exclude empty frames
@@ -145,7 +145,7 @@ class UISpritesheetGenerator(object):
         self.ignoreEmptyFramesCheckBox.setChecked(True)
 
         # "OK" and "Cancel" buttons
-        self.dialogButtonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.dialogButtonBox = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         self.dialogButtonBox.accepted.connect(self._onConfirmButtonPressed)
         self.dialogButtonBox.rejected.connect(self._onCancelButtonPressed)
         
@@ -194,7 +194,7 @@ class UISpritesheetGenerator(object):
 
         # Add a divider
         divider = QFrame()
-        divider.setFrameStyle(QFrame.HLine | QFrame.Sunken)
+        divider.setFrameStyle(QFrame.Shape.HLine | QFrame.Shadow.Sunken)
         divider.setLineWidth(1)
         self.mainLayout.addWidget(divider)
 
@@ -248,8 +248,8 @@ class UISpritesheetGenerator(object):
         for row in range(self.layersToExportListWidget.count()):
             item = self.layersToExportListWidget.item(row)
 
-            if item.checkState() == Qt.Unchecked:
-                layerExclusions.append(item.data(Qt.UserRole))
+            if item.checkState() == Qt.CheckState.Unchecked:
+                layerExclusions.append(item.data(Qt.ItemDataRole.UserRole))
 
         self.spritesheetGenerator.configure(
             str(outputPath),
