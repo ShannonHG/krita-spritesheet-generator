@@ -7,6 +7,7 @@ A Krita plugin capable of exporting animations as spritesheets.
 Use the following steps to install the **Spritesheet Generator** plugin and make it available in Krita:
 
 1. Download this repository as a ZIP file by using the **Code -> Download ZIP** option on GitHub
+    * If you're using Krita 6 or higher then you should switch to the `qt-6-support` branch before this step
 2. Open Krita and navigate to **Settings -> Manage Resources**
 3. Click the **Open Resources Folder** button to access your Krita resources folder
 4. Unzip the previously download ZIP file
