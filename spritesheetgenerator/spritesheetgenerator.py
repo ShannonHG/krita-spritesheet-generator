@@ -121,21 +121,31 @@ class SpritesheetGenerator():
         else:
             # Grab all of the keyframes
             keyframeTimes = set()
-            topLevelLayers = self.temporaryDocument.topLevelNodes()
             maxFramesReached = False
-            currentLayer = 0
 
-            while currentLayer < len(topLevelLayers) and not maxFramesReached:
+            for layer in self.temporaryDocument.topLevelNodes():
+                previousOpacity = 0
                 for time in range(self.animationStartTime, self.animationEndTime + 1, 1):
                     if len(keyframeTimes) >= maxFrameCount:
                         maxFramesReached = True
                         break
 
-                    if self._hasKeyframeAtTime(topLevelLayers[currentLayer], time):
+                    if time in keyframeTimes:  # skip already found
+                        continue
+
+                    # Get opacity of current time
+                    self.temporaryDocument.setCurrentTime(time)
+                    currentOpacity = layer.opacity()
+
+                    if self._hasKeyframeAtTime(layer, time) or \
+                            time > self.animationStartTime and currentOpacity != previousOpacity:
                         keyframeTimes.add(time)
                         print(f"Found keyframe at index: {time}")
 
-                currentLayer += 1
+                    previousOpacity = currentOpacity
+
+                if maxFramesReached:
+                    break
 
             frameCount = len(keyframeTimes)
             print(f"Adding {frameCount} frames to the spritesheet document")
@@ -205,13 +215,36 @@ class SpritesheetGenerator():
         width = self.temporaryDocument.width()
         height = self.temporaryDocument.height()
 
-        # Copy the pixel data of the current frame displayed on the temporary document
-        currentFramePixelData = self.temporaryDocument.pixelData(0, 0, width, height)
+        tempDocLayers = self.temporaryDocument.topLevelNodes()
+        spriteSheetLayerLen = len(self.spritesheetDocument.topLevelNodes())
 
-        # Convert the pixel data of the current frame into a layer in the spritesheet document.
-        newSpritesheetLayer = self.spritesheetDocument.createNode(str(len(self.spritesheetDocument.topLevelNodes())), "paintlayer")
-        self.spritesheetDocument.rootNode().addChildNode(newSpritesheetLayer, None)
-        newSpritesheetLayer.setPixelData(currentFramePixelData, 0, 0, width, height)
+        for i in range(len(tempDocLayers)):
+            tempDocLayer = tempDocLayers[i]
+
+            # Skip invisible (excluded) layers
+            if not tempDocLayer.visible():
+                continue
+
+            # Copy the pixel data of one layer of the current frame
+            tempDocLayerPixelData = tempDocLayer.pixelData(0, 0, width, height)
+
+            if tempDocLayerPixelData.isEmpty():  # nothing to draw
+                continue
+
+            # Convert the pixel data of the current frame into a layer in the spritesheet document
+            newSpritesheetLayer = self.spritesheetDocument.createNode(
+                f"{spriteSheetLayerLen}-{i}",
+                "paintlayer"
+            )
+            self.spritesheetDocument.rootNode().addChildNode(newSpritesheetLayer, None)
+            newSpritesheetLayer.setPixelData(tempDocLayerPixelData, 0, 0, width, height)
+
+            # Copy opacity
+            newSpritesheetLayer.setOpacity(tempDocLayer.opacity())
+
+            # Merge with previous layer into one
+            if i > 0:
+                newSpritesheetLayer.mergeDown()
 
         self.spritesheetDocument.refreshProjection()
 
