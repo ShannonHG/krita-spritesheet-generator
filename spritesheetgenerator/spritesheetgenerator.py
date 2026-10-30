@@ -131,7 +131,10 @@ class SpritesheetGenerator():
                         maxFramesReached = True
                         break
 
-                    if self._hasKeyframeAtTime(topLevelLayers[currentLayer], time):
+                    if time in keyframeTimes:
+                        continue
+
+                    if self._hasKeyframeAtTime(topLevelLayers[currentLayer], time, keyframeTimes):
                         keyframeTimes.add(time)
                         print(f"Found keyframe at index: {time}")
 
@@ -215,24 +218,60 @@ class SpritesheetGenerator():
 
         self.spritesheetDocument.refreshProjection()
 
-    def _hasKeyframeAtTime(self, layer, time):
+    def _hasKeyframeAtTime(self, layer, time, foundKeyframeTimes):
         if not layer.visible():
             return False
 
         if layer.hasKeyframeAtTime(time):
             return True
+
+        # Ensure we're at the correct time so we can cache
+        # the layer's properties for the current frame. 
+        self._setCurrentTimeAndWait(time)
+        
+        originalOpacity = layer.opacity()
+        originalAffineTransform = None
+        
+        # If the layer is a transform mask then we'll store the current transform
+        # so we can determine if it's keyframed on the animation curves docker.
+        if type(layer) is krita.TransformMask:
+            originalAffineTransform = layer.finalAffineTransform()
+
+        # If we haven't found any keyframes yet, then we compare the current frame to the next frame to confirm
+        # if it's a unique frame or not. Otherwise, we compare the current frame against the previous frame.
+        # These manual checks are necessary because hasKeyframeAtTime() doesn't return True
+        # for keyframes on the animation curves docker. So we manually determine if animation curve-able properties have changed. 
+        if len(foundKeyframeTimes) == 0:
+            self._setCurrentTimeAndWait(time + 1)
+            if self._hasAnimationCurvePropertiesChanged(layer, originalOpacity, originalAffineTransform):
+                return True
+        else:
+            self._setCurrentTimeAndWait(time - 1)
+            if self._hasAnimationCurvePropertiesChanged(layer, originalOpacity, originalAffineTransform):
+                return True
             
         if len(layer.childNodes()) != 0:
             # check if any of the child nodes
             # have a keyframe at the given time
             for child in layer.childNodes():
-                if self._hasKeyframeAtTime(child, time):
+                if self._hasKeyframeAtTime(child, time, foundKeyframeTimes):
                     return True
                 
         # reaching this point means that the frame
         # is not a keyframe in the parent layer or
         # any of its children.
         return False
+
+    def _hasAnimationCurvePropertiesChanged(self, layer, originalOpacity, originalAffineTransform):
+        if layer.opacity() != originalOpacity:
+            return True
+
+        if originalAffineTransform != None and originalAffineTransform != layer.finalAffineTransform():
+            return True
+
+    def _setCurrentTimeAndWait(self, time):
+        self.temporaryDocument.setCurrentTime(time)
+        self.temporaryDocument.waitForDone()
     
     def _positionFramesInSpritesheetDocument(self):
         # Based on the selected spritesheet type, move all of the layers into their respective
