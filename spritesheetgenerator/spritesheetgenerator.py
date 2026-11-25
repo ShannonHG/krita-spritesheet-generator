@@ -6,6 +6,9 @@ from PyQt5.QtCore import QUuid
 
 class SpritesheetGenerator():
 
+    ONION_SKIN_SETTINGS_KEY = "onionSkinState_0"
+    ONION_SKIN_ACTION_KEY = "toggle_onion_skin"
+
     def __init__(self):
         pass
 
@@ -27,6 +30,7 @@ class SpritesheetGenerator():
         self.activeDocument = self.krita.activeDocument()
         self.animationStartTime = self.activeDocument.fullClipRangeStartTime()
         self.animationEndTime = self.activeDocument.fullClipRangeEndTime()
+        self.onionSkinStateNeedsReset = False
 
         print("Spritesheet generator configuration completed")
         print(f"Export file path: {self.exportFilePath}")
@@ -51,11 +55,13 @@ class SpritesheetGenerator():
             print("Adding padding to spritesheet frames...")
             self._applyPaddingToSprites()
         
+        self._hideOnionSkin()
         self._createSpritesheetDocumentFromFrames()
         self._positionFramesInSpritesheetDocument()
         self._forceCloseDocument(self.temporaryDocument)
         self._exportToFile()
         self._forceCloseDocument(self.spritesheetDocument)
+        self._resetOnionSkinState()
         
     def _createTemporaryDocument(self):
         self.temporaryDocument = self.activeDocument.clone()
@@ -96,6 +102,34 @@ class SpritesheetGenerator():
 
         print("Finished applying layer exclusions")
 
+    def _hideOnionSkin(self):
+        # The onion skin setting will tell us if the main global onion skin slider
+        # in the onion skins docker is enabled.
+        onionSkinSettingValue = krita.Krita.instance().readSetting("", SpritesheetGenerator.ONION_SKIN_SETTINGS_KEY, "true")
+
+        # If the setting is enabled, then temporary toggle onion skins
+        # off so they don't appear in the export.
+        if str(onionSkinSettingValue).strip().lower() == "true":
+            self._toggleOnionSkin()
+
+            # Needed so we know to toggle the onion skin state
+            # back to its original state after the export is completed.
+            self.onionSkinStateNeedsReset = True
+
+    def _resetOnionSkinState(self):
+        if not self.onionSkinStateNeedsReset:
+            return
+
+        self._toggleOnionSkin()
+
+    def _toggleOnionSkin(self):
+        action = krita.Krita.instance().action(SpritesheetGenerator.ONION_SKIN_ACTION_KEY)
+
+        if action == None:
+            print("Failed to find onion skin toggle action")
+            return
+
+        action.trigger()
 
     def _createSpritesheetDocumentFromFrames(self):
         # If "Auto calculate size" is enabled then the max number of frames is the same as
